@@ -229,7 +229,6 @@ function vLogin(){return `<div class="login"><section class="art"><div class="br
  <div class="seg" role="tablist">${["Staff","Patient","Head office"].map(r=>`<button type="button" data-lr="${r}" class="${S.loginRole===r?"on":""}">${r}</button>`).join("")}</div>
  <div class="f"><label for="uid">${S.loginRole==="Patient"?"IC / passport number":"Staff ID"} <span class="req">*</span></label><input id="uid" value="${S.loginRole==="Patient"?"880412-14-5523":"SFC-R0217"}" autocomplete="username"></div>
  <div class="f"><label for="pw">Password <span class="req">*</span></label><input id="pw" type="password" value="password123" autocomplete="current-password"><span class="hint">At least 10 characters. Locked for 15 minutes after 5 failed attempts.</span></div>
- <div class="f"><label>One-time code sent to •••• 4471</label><div class="otp">${"482913".split("").map((d,i)=>`<input id="otp${i}" maxlength="1" inputmode="numeric" value="${d}" aria-label="Digit ${i+1}">`).join("")}</div></div>
  <button class="btn pri" type="submit">Sign in</button><div class="row note"><a href="#login" style="color:var(--info)">Forgot password?</a><span class="sp"></span><span>Session times out after 15 min idle</span></div></form></section></div>`}
 
 /* ---------- TODAY (reception dashboard) ---------- */
