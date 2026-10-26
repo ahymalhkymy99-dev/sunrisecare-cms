@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}</style>
+<title>SunriseCare CMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Nunito+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: clinic workstation — fixed navy rail (modules = DFD processes 1.0–8.0) + branch-aware top bar + working canvas; collapses to a top tab strip on phones */
+:root{
+  --ink:#24504b; --ink-2:#2f625c; --bg:#f6f5f0; --surface:#ffffff; --surface-2:#faf9f5; --line:#e7e3d8; --muted:#6c7069; --fg:#22302d;
+  --sun:#ec7a4f; --sun-soft:#fdece3; --sun-ink:#a4471f;
+  --ok:#2f8f63; --ok-soft:#e3f3ea; --warn:#b07a1c; --warn-soft:#fbf1dc; --bad:#c4453b; --bad-soft:#fbe7e4; --info:#3a73a8; --info-soft:#e6eff8;
+  --teal:#3c8a80; --rail-fg:#d7e8e4; --rail-active:#ffffff; --rail-muted:#9fc2bb; --rail-line:#3d736c;
+  --shadow:0 1px 2px rgba(60,50,30,.05),0 6px 18px -10px rgba(60,50,30,.18);
+  --display:"Nunito","Segoe UI",system-ui,sans-serif; --body:"Nunito Sans","Segoe UI",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ink:#14302d; --ink-2:#1d403c; --bg:#131c1b; --surface:#1b2725; --surface-2:#1f2d2b; --line:#2e3f3c; --muted:#a3b2ae; --fg:#e8efed;
+  --sun:#f39470; --sun-soft:#3b261c; --sun-ink:#ffc6ad; --ok:#5cc890; --ok-soft:#173329; --warn:#e3b45a; --warn-soft:#352a12; --bad:#f07a70; --bad-soft:#3b1f1d; --info:#86b3e3; --info-soft:#1b2d42;
+  --teal:#6cc0b4; --rail-muted:#86a9a2; --rail-line:#2f5752; --shadow:0 1px 2px rgba(0,0,0,.2); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ink:#14302d; --ink-2:#1d403c; --bg:#131c1b; --surface:#1b2725; --surface-2:#1f2d2b; --line:#2e3f3c; --muted:#a3b2ae; --fg:#e8efed;
+  --sun:#f39470; --sun-soft:#3b261c; --sun-ink:#ffc6ad; --ok:#5cc890; --ok-soft:#173329; --warn:#e3b45a; --warn-soft:#352a12; --bad:#f07a70; --bad-soft:#3b1f1d; --info:#86b3e3; --info-soft:#1b2d42;
+  --teal:#6cc0b4; --rail-muted:#86a9a2; --rail-line:#2f5752; --shadow:0 1px 2px rgba(0,0,0,.2); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font:14.5px/1.5 var(--body);margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh;background:linear-gradient(to right,var(--ink) 232px,var(--bg) 232px)}
+#root{min-height:100vh}
+.rail{background:var(--ink);color:var(--rail-fg);display:flex;flex-direction:column;gap:18px;padding-block:18px;padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:14px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 6px}
+.brand svg{flex:none}
+.brand b{font:800 17px/1.1 var(--display);color:#fff;letter-spacing:-.2px}
+.brand small{display:block;font:600 11px var(--body);color:var(--rail-muted);letter-spacing:.06em;text-transform:uppercase}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .grp{font:700 10.5px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--rail-muted);margin:12px 8px 4px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;color:var(--rail-fg);text-decoration:none;font-weight:500}
+.nav a .pn{font:500 10.5px var(--mono);color:var(--rail-muted);width:26px}
+.nav a:hover{background:var(--ink-2);color:#fff}
+.nav a.on{background:var(--sun);color:#fff}
+.nav a.on .pn{color:#ffe1cc}
+.nav a[hidden]{display:none}
+.rail .who{margin-top:auto;background:var(--ink-2);border-radius:16px;padding:10px 12px;font-size:13px}
+.rail .who label{font:700 10.5px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--rail-muted)}
+.rail .who select{width:100%;margin-top:6px;background:var(--ink);border:1px solid var(--rail-line);border-radius:10px;padding:6px 8px;color:#fff}
+.main{min-width:0;display:flex;flex-direction:column}
+.top{display:flex;gap:14px;align-items:center;padding-block:12px;padding-left:24px;padding-right:max(24px,env(safe-area-inset-right,0px));background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5;flex-wrap:wrap}
+.top .search{flex:1;min-width:200px;display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:7px 12px;color:var(--muted)}
+.top .search input{border:0;background:transparent;outline:0;flex:1;min-width:0;color:var(--fg)}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:13px;background:var(--surface);white-space:nowrap}
+.chip select{border:0;background:transparent;font-weight:600;outline:0}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}
+.canvas{padding-block:22px 40px;padding-left:24px;padding-right:max(24px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px;min-width:0}
+.hd{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.hd h1{font:800 24px/1.15 var(--display);margin:0;letter-spacing:-.3px;text-wrap:balance}
+.hd p{margin:4px 0 0;color:var(--muted)}
+.crumb{font:500 11.5px var(--mono);color:var(--sun-ink);letter-spacing:.04em;text-transform:uppercase}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;min-width:0;box-shadow:var(--shadow)}
+.card h2{font:700 15.5px var(--display);margin:0 0 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card h2 small{font:500 12px var(--body);color:var(--muted)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g-73{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat .k{font-size:12.5px;color:var(--muted)}
+.stat .v{font:800 26px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.stat .d{font-size:12.5px}
+.up{color:var(--ok)}.dn{color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font:600 11.5px var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto}
+.num{text-align:right}
+.mono{font-family:var(--mono);font-size:13px}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)}.p-warn{background:var(--warn-soft);color:var(--warn)}.p-bad{background:var(--bad-soft);color:var(--bad)}.p-info{background:var(--info-soft);color:var(--info)}.p-mute{background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}.p-sun{background:var(--sun-soft);color:var(--sun-ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:999px;padding:8px 14px;border:1px solid var(--line);background:var(--surface);font-weight:600;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--sun);border-color:var(--sun);color:#fff}
+.btn.pri:hover{filter:brightness(.95)}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.sm{padding:5px 10px;font-size:13px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sp{flex:1}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
+.f{display:flex;flex-direction:column;gap:5px;min-width:0}
+.f.full{grid-column:1/-1}
+.f label{font-weight:600;font-size:13px}
+.f label .req{color:var(--bad)}
+.f input,.f select,.f textarea{border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:8px 11px;min-width:0;width:100%}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--sun);outline:0;box-shadow:0 0 0 3px var(--sun-soft)}
+.f .hint{font-size:12px;color:var(--muted)}
+.f.err input{border-color:var(--bad)} .f .emsg{font-size:12px;color:var(--bad)}
+fieldset{border:0;padding:0;margin:0;display:contents}
+.legend{grid-column:1/-1;font:700 12px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--sun-ink);border-bottom:1px solid var(--line);padding-bottom:6px;margin-top:6px}
+.alert{display:flex;gap:10px;align-items:flex-start;border-radius:14px;padding:10px 14px;font-size:13.5px}
+.alert b{display:block}
+.a-bad{background:var(--bad-soft);color:var(--bad)}.a-warn{background:var(--warn-soft);color:var(--warn)}.a-ok{background:var(--ok-soft);color:var(--ok)}.a-info{background:var(--info-soft);color:var(--info)}
+.alert span{color:var(--fg)}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--sun-soft);color:var(--sun-ink);display:grid;place-items:center;font:700 13px var(--display);flex:none}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;font-size:13.5px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;font-weight:500}
+.tl{display:flex;flex-direction:column;gap:0}
+.tl .it{display:grid;grid-template-columns:86px 14px 1fr;gap:10px;padding-bottom:12px}
+.tl .it .when{font:500 12px var(--mono);color:var(--muted);text-align:right}
+.tl .it .bar{position:relative}
+.tl .it .bar:before{content:"";position:absolute;left:6px;top:4px;bottom:-12px;width:2px;background:var(--line)}
+.tl .it .bar:after{content:"";position:absolute;left:2px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--sun)}
+.tl .it:last-child .bar:before{display:none}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px}
+.slot{border:1px solid var(--line);border-radius:12px;padding:7px 4px;text-align:center;font:500 13px var(--mono);background:var(--surface);cursor:pointer}
+.slot.full{background:var(--surface-2);color:var(--muted);text-decoration:line-through;cursor:not-allowed}
+.slot.sel{background:var(--sun);border-color:var(--sun);color:#fff}
+.sched{display:grid;grid-template-columns:64px repeat(4,minmax(120px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:600px}
+.sched>div{background:var(--surface);padding:6px 8px;font-size:12.5px;min-height:42px}
+.sched .h{background:var(--surface-2);font-weight:600}
+.sched .t{font:500 12px var(--mono);color:var(--muted);background:var(--surface-2)}
+.appt{border-radius:10px;padding:4px 7px;border-left:3px solid var(--info);background:var(--info-soft);line-height:1.3}
+.appt.w{border-left-color:var(--sun);background:var(--sun-soft)}
+.appt.d{border-left-color:var(--ok);background:var(--ok-soft)}
+.appt small{display:block;color:var(--muted)}
+.queue{display:flex;flex-direction:column;gap:8px}
+.q{display:grid;grid-template-columns:58px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);background:var(--surface-2);border-radius:14px;padding:8px 12px}
+.q .no{font:700 18px var(--mono);color:var(--sun-ink)}
+.bars{display:flex;flex-direction:column;gap:9px}
+.bars .b{display:grid;grid-template-columns:140px 1fr 90px;gap:10px;align-items:center;font-size:13px}
+.bars .track{height:14px;background:var(--surface-2);border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.bars .fill{height:100%;background:var(--sun);border-radius:999px}
+.bars .fill.alt{background:var(--teal)}
+.matrix td.cell{text-align:center;font:500 13px var(--mono)}
+.cell.low{background:var(--bad-soft);color:var(--bad);font-weight:700}
+.cell.exp{background:var(--warn-soft);color:var(--warn);font-weight:700}
+.cell.hi{background:var(--info-soft);color:var(--info)}
+.phone{width:min(360px,100%);border:10px solid var(--ink);border-radius:36px;background:var(--surface);overflow:hidden;box-shadow:0 18px 40px -20px rgba(40,50,40,.45);margin-inline:auto}
+.phone .scr{padding:16px;display:flex;flex-direction:column;gap:12px;min-height:640px}
+.phone .ph{display:flex;justify-content:space-between;font:600 12px var(--mono);color:var(--muted)}
+.steps{display:flex;gap:6px}.steps i{flex:1;height:4px;border-radius:2px;background:var(--line)}.steps i.on{background:var(--sun)}
+.opt{border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;gap:10px;align-items:center;cursor:pointer;background:var(--surface)}
+.opt.on{border-color:var(--sun);background:var(--sun-soft)}
+.qr{width:120px;height:120px;margin:4px auto;display:block}
+.toast{position:fixed;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:#fff;border-radius:10px;padding:10px 16px;font-weight:500;box-shadow:0 10px 30px -10px rgba(0,0,0,.4);z-index:20}
+.login{min-height:100vh;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+.login .art{background:var(--ink);color:#fff;padding:48px max(40px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;justify-content:space-between;gap:30px;position:relative;overflow:hidden}
+.login .art:after{content:"";position:absolute;right:-150px;bottom:-190px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,var(--sun) 0 38%,rgba(236,122,79,.35) 39% 58%,rgba(236,122,79,.12) 59% 100%);pointer-events:none}
+.login .art>*{position:relative;z-index:1}
+.login .art h2{font:800 34px/1.12 var(--display);margin:0;max-width:16ch;letter-spacing:-.6px;text-wrap:balance}
+.login .art p{color:var(--rail-fg);max-width:46ch}
+.login .pane{display:grid;place-items:center;padding-block:40px;padding-left:24px;padding-right:max(24px,env(safe-area-inset-right,0px));background:var(--surface)}
+.login form{width:min(380px,100%);display:flex;flex-direction:column;gap:14px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:8px;font-weight:600;cursor:pointer;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--ink);color:#fff}
+.otp{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.otp input{text-align:center;font:600 18px var(--mono);padding:8px 0;border:1px solid var(--line);border-radius:12px;background:var(--surface);min-width:0}
+.rx{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1fr) minmax(0,1fr) 54px 118px 28px;gap:8px;align-items:center}
+.rx.h{font:600 11px var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.rx input,.rx select{border:1px solid var(--line);border-radius:7px;padding:6px 8px;background:var(--surface);min-width:0;width:100%}
+.x{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:18px}
+.paper{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;font-size:13px}
+.paper .ph2{display:flex;justify-content:space-between;gap:10px;border-bottom:2px solid var(--fg);padding-bottom:8px;margin-bottom:10px}
+.ttl{font:800 16px var(--display)}
+.foot{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:10px;padding-top:6px;color:var(--muted);font-size:11.5px}
+.note{font-size:12.5px;color:var(--muted)}
+.hide-sm{}
+@media (max-width:1100px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g-73,.g3{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:820px){
+ .app{grid-template-columns:1fr;background:var(--bg)}
+ .rail{position:static;height:auto;flex-direction:column;gap:10px;padding-right:max(14px,env(safe-area-inset-right,0px))}
+ .nav{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}.nav .grp{display:none}.nav a{white-space:nowrap}
+ .rail .who{margin-top:0}
+ .g2,.form{grid-template-columns:minmax(0,1fr)}
+ .login{grid-template-columns:1fr}.login .art{padding:28px 16px}
+ .bars .b{grid-template-columns:100px 1fr 70px}
+ .rx{grid-template-columns:1fr 1fr}.rx.h{display:none}
+ .hide-sm{display:none}
+ .canvas,.top{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="toast" id="toast" hidden></div>
+<script>
+const BR={ALL:"All 5 branches",PJ1:"PJ SS2 (HQ)",PJ2:"PJ Damansara Utama",SA1:"Shah Alam Sek. 7",SA2:"Shah Alam Setia Alam",SJ1:"Subang Jaya SS15"};
+const ROLES={
+ rec:{n:"Aina Sofea · Receptionist",views:["today","register","appointments","billing","claims"]},
+ nurse:{n:"Siti Hajar · Staff Nurse",views:["today","appointments","consult"]},
+ doc:{n:"Dr. Mei Ling Chong · GP",views:["today","consult","appointments","patient"]},
+ pha:{n:"Ravi Kumar · Pharmacy Asst.",views:["pharmacy","inventory"]},
+ mgt:{n:"Dr. Hafiz Rahman · Director",views:["today","reports","inventory","claims","patient"]}};
+const NAV=[["Front desk",[["today","Today","—"],["register","Register patient","1.0"],["patient","Patient record","1.0"],["appointments","Appointments & queue","2.0"]]],
+ ["Clinical",[["consult","Consultation","3.0"],["pharmacy","Dispensing","4.0"],["inventory","Medicine stock","5.0"]]],
+ ["Finance",[["billing","Billing & e-invoice","6.0"],["claims","Panel claims","7.0"]]],
+ ["Management",[["reports","Reports & KPIs","8.0"]]],
+ ["Patient app",[["portal","Patient portal (mobile)","2.0"]]]];
+let S={view:"login",role:"rec",branch:"PJ1",loginRole:"Staff",slot:"10:30",pstep:2,rx:[["Paracetamol 500 mg tablet","1 tab","QID PRN",3,12],["Cetirizine 10 mg tablet","1 tab","ON",5,5]],dispensed:{},paid:false,claimsSel:{},xfer:false,repBranch:"ALL"};
+const $=s=>document.querySelector(s);
+function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(t._h);t._h=setTimeout(()=>t.hidden=true,2600)}
+function go(v){S.view=v;try{history.replaceState(null,"","#"+v)}catch(e){}render();window.scrollTo(0,0)}
+const logo=`<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#ec7a4f"/><circle cx="17" cy="21" r="7" fill="#fff"/><rect x="4" y="21" width="26" height="9" fill="#ec7a4f"/><g stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M17 8v3M8.5 12l2 2M25.5 12l-2 2M5 20h3M26 20h3"/></g><rect x="5" y="23" width="24" height="2.2" rx="1.1" fill="#fff"/></svg>`;
+function pill(t,k){return `<span class="pill p-${k}">${t}</span>`}
+function shell(inner){
+ const allowed=ROLES[S.role].views;
+ const nav=NAV.map(([g,items])=>`<div class="grp">${g}</div>`+items.map(([v,l,p])=>{const ok=v==="portal"||allowed.includes(v);return `<a href="#${v}" data-go="${v}" class="${S.view===v?"on":""}" ${ok?"":"hidden"}><span class="pn">${p}</span>${l}</a>`}).join("")).join("");
+ return `<div class="app"><aside class="rail"><div class="brand">${logo}<div><b>SunriseCare</b><small>Sunrise Family Clinics</small></div></div>
+ <nav class="nav" aria-label="Modules">${nav}</nav>
+ <div class="who"><label for="role">Signed in as (role demo)</label><select id="role">${Object.entries(ROLES).map(([k,r])=>`<option value="${k}" ${S.role===k?"selected":""}>${r.n}</option>`).join("")}</select>
+ <div class="row" style="margin-top:8px"><span class="note" style="color:var(--rail-muted)">Menu follows role-based access</span><span class="sp"></span><button class="btn sm" id="logout" style="background:transparent;color:#fff;border-color:var(--rail-line)">Log out</button></div></div></aside>
+ <div class="main"><header class="top"><div class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Search patient by name, IC/passport or Patient ID (searches all 5 branches)"></div>
+ <label class="chip"><span class="dot"></span>Branch <select id="branch">${Object.entries(BR).filter(([k])=>k!=="ALL"||S.role==="mgt").map(([k,v])=>`<option value="${k}" ${S.branch===k?"selected":""}>${v}</option>`).join("")}</select></label>
+ <span class="chip hide-sm">Mon 26 Apr 2027 · 10:12</span></header>
+ <main class="canvas">${inner}</main></div></div>`}
+function hd(crumb,title,sub,actions=""){return `<div class="hd"><div><div class="crumb">${crumb}</div><h1>${title}</h1>${sub?`<p>${sub}</p>`:""}</div><div class="row">${actions}</div></div>`}
+
+/* ---------- LOGIN ---------- */
+function vLogin(){return `<div class="login"><section class="art"><div class="brand">${logo}<div><b>SunriseCare</b><small>Clinic Management System</small></div></div>
+ <div><h2>One patient record across all five Sunrise clinics.</h2><p>Registration, appointments, consultation notes, dispensing, billing and panel claims for PJ, Shah Alam and Subang Jaya, in one secure system.</p></div>
+ <div class="row" style="gap:18px;color:var(--rail-fg);font-size:13px"><span>● 450 patients a day</span><span>● 48 staff</span><span>● PDPA-compliant, data hosted in Malaysia</span></div></section>
+ <section class="pane"><form id="loginF" novalidate><div><div class="crumb">Secure sign-in</div><h1 style="font:800 24px var(--display);margin:4px 0 0">Welcome back</h1></div>
+ <div class="seg" role="tablist">${["Staff","Patient","Head office"].map(r=>`<button type="button" data-lr="${r}" class="${S.loginRole===r?"on":""}">${r}</button>`).join("")}</div>
+ <div class="f"><label for="uid">${S.loginRole==="Patient"?"IC / passport number":"Staff ID"} <span class="req">*</span></label><input id="uid" value="${S.loginRole==="Patient"?"880412-14-5523":"SFC-R0217"}" autocomplete="username"></div>
+ <div class="f"><label for="pw">Password <span class="req">*</span></label><input id="pw" type="password" value="password123" autocomplete="current-password"><span class="hint">At least 10 characters. Locked for 15 minutes after 5 failed attempts.</span></div>
+ <div class="f"><label>One-time code sent to •••• 4471</label><div class="otp">${"482913".split("").map((d,i)=>`<input id="otp${i}" maxlength="1" inputmode="numeric" value="${d}" aria-label="Digit ${i+1}">`).join("")}</div></div>
+ <button class="btn pri" type="submit">Sign in</button><div class="row note"><a href="#login" style="color:var(--info)">Forgot password?</a><span class="sp"></span><span>Session times out after 15 min idle</span></div></form></section></div>`}
+
+/* ---------- TODAY (reception dashboard) ---------- */
+function vToday(){const q=[["A014","Tan Wei Ming","Dr. Chong","Booked 10:00","Waiting 6 min","ok"],["W021","Nurul Aisyah binti Rahman","Any GP","Walk-in","Waiting 18 min","warn"],["A015","Priya a/p Raman","Dr. Kavitha","Booked 10:15","At triage","info"],["W022","Muhammad Haziq bin Azman","Any GP","Walk-in","Waiting 4 min","ok"],["D006","Lim Mei Xuan","Dr. Farah (Dental)","Booked 10:30","Not arrived","mute"]];
+ return hd("Front desk · "+BR[S.branch],"Good morning, Aina","Live view of today's appointments, walk-in queue and counter tasks.",`<button class="btn" data-go="appointments">Book appointment</button><button class="btn pri" data-go="register">+ Register patient</button>`)+
+ `<div class="grid g4">${[["Patients today","86","+9 vs last Mon","up"],["Average wait","14 min","−22 min vs paper system","up"],["Now waiting","11","3 walk-ins over 15 min","dn"],["Unpaid bills","4","RM 312.40 outstanding","dn"]].map(s=>`<div class="card stat"><span class="k">${s[0]}</span><span class="v">${s[1]}</span><span class="d ${s[3]}">${s[2]}</span></div>`).join("")}</div>
+ <div class="grid g-73"><div class="card"><h2>Live queue <small>Shown on waiting-area screen</small></h2><div class="queue">${q.map(r=>`<div class="q"><span class="no">${r[0]}</span><div><b>${r[1]}</b><div class="note">${r[2]} · ${r[3]}</div></div>${pill(r[4],r[5])}</div>`).join("")}</div>
+ <div class="row" style="margin-top:12px"><button class="btn sm" id="callNext">Call next patient</button><button class="btn sm" data-go="appointments">Open schedule</button></div></div>
+ <div class="grid"><div class="card"><h2>Needs attention</h2><div class="grid" style="gap:10px">
+ <div class="alert a-bad"><div><b>2 panel claims rejected</b><span>MediPanel TPA: member number does not match. Fix and resubmit before 30 Apr.</span></div></div>
+ <div class="alert a-warn"><div><b>Amoxicillin 500 mg low at this branch</b><span>38 capsules left (reorder level 200). Transfer of 300 from SJ1 suggested.</span></div></div>
+ <div class="alert a-info"><div><b>7 reminders sent for tomorrow</b><span>WhatsApp/SMS sent at 09:00; 5 confirmed, 2 pending.</span></div></div></div></div>
+ <div class="card"><h2>Doctors on duty</h2><table><tr><td>Dr. Mei Ling Chong</td><td>${pill("Consulting","ok")}</td><td class="num mono">Rm 1</td></tr><tr><td>Dr. Kavitha Subramaniam</td><td>${pill("Consulting","ok")}</td><td class="num mono">Rm 2</td></tr><tr><td>Dr. Farah Izzati (Dental)</td><td>${pill("Break till 10:30","warn")}</td><td class="num mono">Dental</td></tr></table></div></div></div>`}
+
+/* ---------- REGISTER ---------- */
+function vRegister(){return hd("Process 1.0 · Register Patient","Register a new patient","IC / passport is checked against all five branches before a new record is created.",`<button class="btn" data-go="today">Cancel</button><button class="btn pri" id="saveReg">Save &amp; create Patient ID</button>`)+
+ `<div class="grid g-73"><form class="card form" id="regF" novalidate>
+ <div class="legend">Identity</div>
+ <div class="f" id="f-ic"><label for="ic">MyKad IC / passport no. <span class="req">*</span></label><input id="ic" value="950716-10-6218" placeholder="YYMMDD-PB-####"><span class="hint">Date of birth and gender fill in automatically from a MyKad number.</span></div>
+ <div class="f"><label for="nm">Full name (as in IC) <span class="req">*</span></label><input id="nm" value="Wong Jia Hui"></div>
+ <div class="f"><label for="dob">Date of birth</label><input id="dob" value="16/07/1995" readonly></div>
+ <div class="f"><label for="gd">Gender</label><select id="gd"><option>Female</option><option>Male</option></select></div>
+ <div class="legend">Contact</div>
+ <div class="f"><label for="ph">Mobile number <span class="req">*</span></label><input id="ph" value="012-338 7710"><span class="hint">Used for WhatsApp/SMS reminders.</span></div>
+ <div class="f"><label for="em">Email</label><input id="em" value="jiahui.wong@email.com"></div>
+ <div class="f full"><label for="ad">Home address</label><input id="ad" value="12, Jalan SS 2/24, 47300 Petaling Jaya, Selangor"></div>
+ <div class="f"><label for="ec">Emergency contact</label><input id="ec" value="Wong Kok Leong (father) · 016-220 1934"></div>
+ <div class="f"><label for="bt">Blood type</label><select id="bt"><option>Unknown</option><option selected>O+</option><option>A+</option><option>B+</option><option>AB+</option></select></div>
+ <div class="legend">Medical safety</div>
+ <div class="f full"><label for="al">Known drug allergies <span class="req">*</span></label><input id="al" value="Penicillin (rash), Sulfonamides"><span class="hint">Shown as a red banner to every doctor and pharmacy assistant at every branch. Type "None" if none.</span></div>
+ <div class="legend">Payment &amp; panel</div>
+ <div class="f"><label for="pp">Payer</label><select id="pp"><option>Self-pay</option><option selected>Corporate panel</option><option>Insurance</option></select></div>
+ <div class="f"><label for="pn">Panel provider</label><select id="pn"><option>MediPanel TPA</option><option selected>Klang Valley Corporate Care</option><option>Harmoni Insurance Berhad</option></select></div>
+ <div class="f"><label for="mn">Member / policy no.</label><input id="mn" value="KVCC-0045123"></div>
+ <div class="f"><label for="cl">Annual coverage limit (RM)</label><input id="cl" value="1,500.00"></div>
+ <div class="f full"><label class="row" style="font-weight:500"><input type="checkbox" checked style="width:auto"> Patient consents to collection and use of personal data under the PDPA notice (version 2027-01).</label></div>
+ </form>
+ <div class="grid"><div class="card"><h2>Cross-branch check</h2><div class="alert a-ok" id="dupBox"><div><b>No existing record found</b><span>Searched 18,402 patients in all 5 branches by IC number and name.</span></div></div>
+ <p class="note">Try changing the IC to <span class="mono">880412-14-5523</span> to see a duplicate warning.</p></div>
+ <div class="card"><h2>What happens on save</h2><div class="tl">
+ <div class="it"><span class="when">instant</span><span class="bar"></span><div>Patient ID <b class="mono">SFC-018403</b> created and stored in D1 Patients.</div></div>
+ <div class="it"><span class="when">instant</span><span class="bar"></span><div>Portal login sent to patient by SMS.</div></div>
+ <div class="it"><span class="when">instant</span><span class="bar"></span><div>Panel eligibility saved for automatic claim preparation.</div></div></div></div></div></div>`}
+
+/* ---------- PATIENT RECORD ---------- */
+function vPatient(){return hd("Process 1.0 / 3.0 · Unified patient record","Tan Wei Ming",`<span class="mono">SFC-004217</span> · IC 880412-14-•••• · Male, 38 · Registered at PJ SS2 in 2021`,`<button class="btn" data-go="appointments">Book appointment</button><button class="btn pri" data-go="consult">Start consultation</button>`)+
+ `<div class="alert a-bad"><div><b>ALLERGY: Penicillin (anaphylaxis 2019)</b><span>Avoid all penicillin-class antibiotics, including amoxicillin.</span></div></div>
+ <div class="grid g-73"><div class="card"><h2>Visit history across all branches <small>12 visits · 4 branches</small></h2><div class="tl">
+ ${[["14 Apr 27","Subang Jaya SS15","Dr. Kavitha","Acute bronchitis (J20.9) · Salbutamol inhaler, Bromhexine · MC 2 days"],["02 Mar 27","Shah Alam Sek. 7","Dr. Hafiz","Hypertension review (I10) · BP 142/90 · Amlodipine 5 mg continued"],["18 Jan 27","PJ SS2 (HQ)","Dr. Chong","Fasting blood sugar 6.4 mmol/L (lab) · lifestyle advice"],["05 Nov 26","PJ Damansara Utama","Dr. Ong","Dental scaling (Dr. Farah) · no medication"],["21 Aug 26","PJ SS2 (HQ)","Dr. Chong","Hypertension diagnosed (I10) · Amlodipine 5 mg OD"]].map(v=>`<div class="it"><span class="when">${v[0]}</span><span class="bar"></span><div><b>${v[1]}</b> · ${v[2]}<div class="note">${v[3]}</div></div></div>`).join("")}</div></div>
+ <div class="grid"><div class="card"><h2>Profile</h2><dl class="kv"><dt>Mobile</dt><dd>017-552 0981</dd><dt>Blood type</dt><dd>B+</dd><dt>Chronic</dt><dd>Hypertension (since Aug 2026)</dd><dt>Current meds</dt><dd>Amlodipine 5 mg OD</dd><dt>Panel</dt><dd>MediPanel TPA · MP-77812-03</dd><dt>Panel balance</dt><dd>RM 1,084.50 of RM 1,500</dd></dl></div>
+ <div class="card"><h2>Lab results <small>last 12 months</small></h2><table><tr><th>Test</th><th class="num">Result</th><th>Flag</th></tr><tr><td>Fasting glucose</td><td class="num mono">6.4 mmol/L</td><td>${pill("High","warn")}</td></tr><tr><td>Total cholesterol</td><td class="num mono">5.1 mmol/L</td><td>${pill("Borderline","warn")}</td></tr><tr><td>eGFR</td><td class="num mono">92</td><td>${pill("Normal","ok")}</td></tr></table></div>
+ <div class="card"><h2>Access log</h2><p class="note" style="margin:0">Last opened by Dr. Kavitha (SJ1) on 14 Apr 2027, 15:42. Every view and change is logged for audit.</p></div></div></div>`}
+
+/* ---------- APPOINTMENTS ---------- */
+function vAppointments(){const docs=["Dr. Chong","Dr. Kavitha","Dr. Ong","Dr. Farah (Dental)"];const times=["09:00","09:30","10:00","10:30","11:00","11:30","12:00"];
+ const A={"09:00":[["Ahmad Faiz","A","d"],["Chan Siew Lan","A","d"],null,["Kumar R.","Scaling","d"]],"09:30":[["Goh Li Ting","A","d"],null,["Walk-in W018","W","d"],null],"10:00":[["Tan Wei Ming","Follow-up","d"],["Priya a/p Raman","A",""],["Walk-in W020","W","w"],null],"10:30":[["Lim Mei Xuan","A",""],null,["Walk-in W021","W","w"],["Lim Mei Xuan","Filling",""]],"11:00":[null,["Rosnah Ismail","A",""],null,null],"11:30":[["Daniel Lee","A",""],null,null,["Aiman Hakim","Check-up",""]],"12:00":[null,null,["Siti Mariam","A",""],null]};
+ return hd("Process 2.0 · Schedule Appointment","Appointments & walk-in queue",BR[S.branch]+" · Monday 26 April 2027 · 15-minute slots, capped per doctor to prevent overbooking",`<button class="btn">◀ Prev</button><button class="btn">Today</button><button class="btn">Next ▶</button>`)+
+ `<div class="grid g-73"><div class="card"><h2>Doctor schedule <small>${pill("Booked","info")} ${pill("Walk-in","sun")} ${pill("Completed","ok")}</small></h2><div class="tw"><div class="sched"><div class="h t"></div>${docs.map(d=>`<div class="h">${d}</div>`).join("")}
+ ${times.map(t=>`<div class="t">${t}</div>`+A[t].map(c=>c?`<div><div class="appt ${c[2]}"><b>${c[0]}</b><small>${c[1]==="A"?"Booked":c[1]==="W"?"Walk-in":c[1]}</small></div></div>`:`<div></div>`).join("")).join("")}</div></div></div>
+ <div class="grid"><form class="card" id="bookF" novalidate><h2>New booking</h2><div class="form" style="grid-template-columns:1fr">
+ <div class="f"><label for="bp">Patient <span class="req">*</span></label><input id="bp" value="Rosnah binti Ismail · SFC-009921"></div>
+ <div class="f"><label for="bd">Doctor / service</label><select id="bd"><option>Any GP (shortest wait)</option><option>Dr. Chong</option><option>Dr. Kavitha</option><option>Dr. Farah (Dental)</option></select></div>
+ <div class="f"><label>Available slots, Mon 26 Apr</label><div class="slots">${["10:30","10:45","11:00","11:15","11:30","11:45","14:00","14:15"].map((t,i)=>`<button type="button" class="slot ${i===2||i===4?"full":""} ${S.slot===t?"sel":""}" data-slot="${t}" ${i===2||i===4?"disabled":""}>${t}</button>`).join("")}</div><span class="hint">Full slots are greyed out: the system blocks double booking.</span></div>
+ <div class="f"><label for="br">Reminder</label><select id="br"><option>WhatsApp + SMS, 24 h and 2 h before</option><option>SMS only</option><option>None</option></select></div>
+ <button class="btn pri" type="submit">Confirm booking at ${S.slot}</button></div></form>
+ <div class="card"><h2>Walk-in check-in</h2><div class="row"><div class="f" style="flex:1"><label for="wi">IC or Patient ID</label><input id="wi" value="SFC-011870"></div><button class="btn dark" id="checkin" style="align-self:flex-end">Issue queue no.</button></div><p class="note">Estimated wait for next walk-in: <b>22 min</b> (3 ahead).</p></div></div></div>`}
+
+/* ---------- CONSULTATION ---------- */
+function vConsult(){const stock={"Paracetamol 500 mg tablet":[1840,"ok"],"Cetirizine 10 mg tablet":[412,"ok"],"Amoxicillin 500 mg capsule":[38,"bad"],"Azithromycin 250 mg tablet":[96,"ok"],"Loratadine 10 mg tablet":[0,"bad"]};
+ return hd("Process 3.0 · Record Consultation","Consultation · Tan Wei Ming",`Queue A014 · Dr. Mei Ling Chong · Room 1 · started 10:06`,`<button class="btn" data-go="patient">Full record</button><button class="btn pri" id="finishC">Finish &amp; send to pharmacy</button>`)+
+ `<div class="alert a-bad"><div><b>ALLERGY: Penicillin (anaphylaxis 2019)</b><span>Recorded at PJ SS2 in 2021. Penicillin-class items are blocked in the prescription below.</span></div></div>
+ <div class="grid g-73"><div class="grid">
+ <div class="card"><h2>Vital signs <small>Entered by Nurse Siti Hajar at 10:01</small></h2><div class="grid g4">${[["BP","138/88","mmHg","warn"],["Pulse","82","bpm","ok"],["Temp","37.9","°C","warn"],["SpO₂","98","%","ok"]].map(v=>`<div class="stat"><span class="k">${v[0]}</span><span class="v" style="font-size:22px">${v[1]} <small style="font:500 12px var(--body);color:var(--muted)">${v[2]}</small></span>${pill(v[3]==="ok"?"Normal":"Check","warn"===v[3]?"warn":"ok")}</div>`).join("")}</div></div>
+ <form class="card form" novalidate><div class="f full"><label for="sx">Presenting complaint</label><textarea id="sx" rows="2">Fever and sore throat for 2 days, mild cough, runny nose. No shortness of breath.</textarea></div>
+ <div class="f"><label for="dx">Diagnosis (ICD-10) <span class="req">*</span></label><input id="dx" value="J06.9 · Acute upper respiratory infection"></div>
+ <div class="f"><label for="mc">Medical certificate</label><select id="mc"><option>None</option><option>1 day</option><option selected>2 days (26–27 Apr)</option><option>3 days</option></select></div>
+ <div class="f full"><label for="cn">Clinical notes</label><textarea id="cn" rows="2">Throat injected, no exudate. Chest clear. Viral URTI likely. BP slightly raised today, review at hypertension follow-up in 4 weeks.</textarea></div></form>
+ <div class="card"><h2>Prescription <small>Stock shown for ${BR[S.branch]}</small></h2>
+ <div class="rx h"><span>Medicine</span><span>Dose</span><span>Freq.</span><span>Days</span><span>Stock here</span><span></span></div>
+ <div id="rxList" class="grid" style="gap:8px;margin-top:6px">${S.rx.map((r,i)=>{const s=stock[r[0]]||[0,"bad"];return `<div class="rx"><input value="${r[0]}" aria-label="Medicine"><input value="${r[1]}" aria-label="Dose"><input value="${r[2]}" aria-label="Frequency"><input value="${r[3]}" aria-label="Days"><span>${pill(s[0]+" in stock",s[1])}</span><button class="x" data-rm="${i}" aria-label="Remove">×</button></div>`}).join("")}</div>
+ <div class="row" style="margin-top:10px"><select id="addMed" style="border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--surface);flex:1;min-width:0">${Object.keys(stock).map(m=>`<option>${m}</option>`).join("")}</select><button class="btn" id="addRx">+ Add</button></div>
+ <div id="rxMsg"></div></div></div>
+ <div class="grid"><div class="card"><h2>Last 3 visits <small>all branches</small></h2><div class="tl">${[["14 Apr","SJ1 · Acute bronchitis · Salbutamol"],["02 Mar","SA1 · Hypertension review"],["18 Jan","PJ1 · Raised fasting glucose"]].map(v=>`<div class="it"><span class="when">${v[0]}</span><span class="bar"></span><div class="note" style="color:var(--fg)">${v[1]}</div></div>`).join("")}</div></div>
+ <div class="card"><h2>Charges preview</h2><table><tr><td>Consultation (GP)</td><td class="num mono">35.00</td></tr><tr><td>Medicines (2 items)</td><td class="num mono">14.60</td></tr><tr><td><b>Total</b></td><td class="num mono"><b>RM 49.60</b></td></tr></table><p class="note">Panel: MediPanel TPA covers in full. Sent to billing (6.0) on finish.</p></div>
+ <div class="card"><h2>Outputs</h2><div class="grid" style="gap:8px"><button class="btn">Preview MC (PDF)</button><button class="btn">Referral letter</button></div></div></div></div>`}
+
+/* ---------- PHARMACY ---------- */
+function vPharmacy(){const L=[["RX-27042610","Tan Wei Ming","Dr. Chong","Paracetamol 500 mg ×12, Cetirizine 10 mg ×5","Penicillin"],["RX-27042608","Nurul Aisyah binti Rahman","Dr. Kavitha","Amoxicillin 500 mg ×15, Paracetamol 500 mg ×10",""],["RX-27042605","Ahmad Faiz bin Kamal","Dr. Chong","Metformin 500 mg ×60, Amlodipine 5 mg ×30",""]];
+ return hd("Process 4.0 · Dispense Medicine","Dispensing queue",BR[S.branch]+" · prescriptions arrive here the moment the doctor finishes",`<span class="chip">${pill(L.filter(r=>!S.dispensed[r[0]]).length+" waiting","sun")}</span>`)+
+ `<div class="grid g-73"><div class="card"><h2>Prescriptions to dispense</h2><div class="tw"><table><tr><th>Rx no.</th><th>Patient</th><th>Items</th><th>Status</th><th></th></tr>
+ ${L.map(r=>`<tr><td class="mono">${r[0]}</td><td><b>${r[1]}</b><div class="note">${r[2]}${r[4]?` · <span style="color:var(--bad);font-weight:600">Allergy: ${r[4]}</span>`:""}</div></td><td>${r[3]}</td><td>${S.dispensed[r[0]]?pill("Dispensed","ok"):r[0]==="RX-27042608"?pill("Short stock","warn"):pill("Ready","info")}</td><td class="num">${S.dispensed[r[0]]?"":`<button class="btn sm pri" data-disp="${r[0]}">Dispense</button>`}</td></tr>`).join("")}</table></div>
+ <div class="alert a-warn" style="margin-top:12px"><div><b>RX-27042608 needs 15 Amoxicillin; 38 left</b><span>Dispensing will drop stock below the reorder level and raise a transfer suggestion in Medicine Stock (5.0).</span></div></div></div>
+ <div class="card"><h2>Medication label <small>printed on dispense</small></h2><div class="paper"><div class="ph2"><div><div class="ttl">Sunrise Family Clinics</div><div class="note">PJ SS2 · 03-7865 2210</div></div><div class="mono" style="text-align:right">RX-27042610<br>26/04/2027</div></div>
+ <div style="font:700 15px var(--display)">PARACETAMOL 500 mg TABLET</div><div>Qty: 12 tablets</div><div style="margin:8px 0;font-size:14px"><b>Take 1 tablet 4 times a day when needed for fever or pain.</b><br>Do not take more than 8 tablets in 24 hours.</div><div class="note">Ambil 1 biji 4 kali sehari jika perlu untuk demam atau sakit.</div>
+ <div class="foot"><span>Patient: TAN WEI MING</span><span>Dispensed by: Ravi K.</span></div></div></div></div>`}
+
+/* ---------- INVENTORY ---------- */
+function vInventory(){const B=["PJ1","PJ2","SA1","SA2","SJ1"];const M=[["Paracetamol 500 mg tab",[1840,920,1310,760,1505],300,""],["Amoxicillin 500 mg cap",[38,410,265,180,690],200,""],["Cetirizine 10 mg tab",[412,95,230,310,288],120,""],["Loratadine 10 mg tab",[0,140,60,44,220],80,""],["Metformin 500 mg tab",[960,1200,880,640,1020],400,""],["Amlodipine 5 mg tab",[540,610,180,700,460],250,"SA2:Exp 31 May"],["Salbutamol inhaler",[14,9,22,6,30],8,"PJ2:Exp 15 Jun"],["ORS sachet",[220,180,40,90,260],60,""]];
+ return hd("Process 5.0 · Control Medicine Stock","Network medicine stock","Live quantities at all five clinic pharmacies. Head office sees the same view.",`<button class="btn">Receive delivery</button><button class="btn pri" id="poBtn">Create purchase order</button>`)+
+ `<div class="grid g4">${[["Items below reorder level","4","across 3 branches","dn"],["Expiring within 60 days","2 batches","RM 1,240 at risk","dn"],["Transfers this month","9","saved RM 3,860 in stock-outs","up"],["Stock value (network)","RM 168,420","PO spend RM 52,300 this month",""]].map(s=>`<div class="card stat"><span class="k">${s[0]}</span><span class="v" style="font-size:22px">${s[1]}</span><span class="d ${s[3]}">${s[2]}</span></div>`).join("")}</div>
+ <div class="grid g-73"><div class="card"><h2>Stock by branch <small>${pill("Below reorder","bad")} ${pill("Expiring","warn")} ${pill("Surplus","info")}</small></h2><div class="tw"><table class="matrix"><tr><th>Medicine</th>${B.map(b=>`<th class="num">${b}</th>`).join("")}<th class="num">Reorder</th></tr>
+ ${M.map(m=>`<tr><td>${m[0]}</td>${m[1].map((q,i)=>{let c=q<m[2]?"low":m[3].startsWith(B[i])?"exp":q>m[2]*4?"hi":"";return `<td class="cell ${c}" title="${c==="exp"?m[3].split(":")[1]:""}">${q}${c==="exp"?"*":""}</td>`}).join("")}<td class="num mono">${m[2]}</td></tr>`).join("")}</table></div><p class="note">* Batch expiring soon. Click a red cell to request a transfer.</p></div>
+ <div class="grid"><div class="card"><h2>Suggested transfers</h2><table><tr><th>Medicine</th><th>From → To</th><th class="num">Qty</th><th></th></tr>
+ <tr><td>Amoxicillin 500 mg</td><td class="mono">SJ1 → PJ1</td><td class="num mono">300</td><td>${S.xfer?pill("Requested","ok"):`<button class="btn sm pri" id="xferBtn">Request</button>`}</td></tr>
+ <tr><td>Loratadine 10 mg</td><td class="mono">SJ1 → PJ1</td><td class="num mono">100</td><td><button class="btn sm">Request</button></td></tr>
+ <tr><td>Amlodipine 5 mg</td><td class="mono">SA2 → SA1</td><td class="num mono">200</td><td><button class="btn sm">Request</button></td></tr></table><p class="note">Transfers over RM 500 need head-office approval.</p></div>
+ <div class="card"><h2>Expiry watch <small>exception report</small></h2><table><tr><td>Amlodipine 5 mg · batch AM2291 · SA2</td><td>${pill("31 May","warn")}</td></tr><tr><td>Salbutamol inhaler · batch SB0773 · PJ2</td><td>${pill("15 Jun","warn")}</td></tr></table></div></div></div>`}
+
+/* ---------- BILLING ---------- */
+function vBilling(){return hd("Process 6.0 · Process Billing","Bill · Tan Wei Ming","Invoice INV-PJ1-2704-0386 · created automatically from consultation and dispensing",`<button class="btn">Split bill</button>`)+
+ `<div class="grid g-73"><div class="card"><h2>Invoice items</h2><div class="tw"><table><tr><th>Item</th><th>Type</th><th class="num">Qty</th><th class="num">Unit (RM)</th><th class="num">Amount (RM)</th></tr>
+ <tr><td>GP consultation</td><td>${pill("Service","mute")}</td><td class="num">1</td><td class="num mono">35.00</td><td class="num mono">35.00</td></tr>
+ <tr><td>Paracetamol 500 mg tablet</td><td>${pill("Medicine","mute")}</td><td class="num">12</td><td class="num mono">0.30</td><td class="num mono">3.60</td></tr>
+ <tr><td>Cetirizine 10 mg tablet</td><td>${pill("Medicine","mute")}</td><td class="num">5</td><td class="num mono">2.20</td><td class="num mono">11.00</td></tr>
+ <tr><td colspan="4"><b>Total</b></td><td class="num mono"><b>49.60</b></td></tr>
+ <tr><td colspan="4">Covered by panel · MediPanel TPA (MP-77812-03)</td><td class="num mono">− 49.60</td></tr>
+ <tr><td colspan="4"><b>Patient pays</b></td><td class="num mono"><b>0.00</b></td></tr></table></div>
+ <div class="row" style="margin-top:14px"><span class="note">Panel balance after this visit: RM 1,034.90</span><span class="sp"></span>${S.paid?pill("Finalised · claim CLM-2704-0211 queued","ok"):`<button class="btn pri" id="payBtn">Finalise bill &amp; submit e-invoice</button>`}</div></div>
+ <div class="grid"><div class="card"><h2>Payment</h2><div class="grid" style="gap:8px">${["Panel (no payment)","Cash","Card / contactless","DuitNow QR"].map((m,i)=>`<label class="opt ${i===0?"on":""}"><input type="radio" name="pm" ${i===0?"checked":""}> ${m}</label>`).join("")}</div></div>
+ <div class="card"><h2>e-Invoice (LHDN MyInvois)</h2><dl class="kv"><dt>Status</dt><dd>${S.paid?pill("Validated","ok"):pill("Not submitted","mute")}</dd><dt>UUID</dt><dd class="mono">${S.paid?"F9D3…7C21":"—"}</dd><dt>Receipt</dt><dd>${S.paid?"Sent to patient by email &amp; portal":"Generated on finalise"}</dd></dl></div></div></div>`}
+
+/* ---------- CLAIMS ---------- */
+function vClaims(){const C=[["CLM-2704-0198","Nurul Aisyah binti Rahman","MediPanel TPA","82.40","Rejected","Member no. mismatch"],["CLM-2704-0201","Ahmad Faiz bin Kamal","Klang Valley Corporate Care","126.00","Ready",""],["CLM-2704-0204","Goh Li Ting","Harmoni Insurance Berhad","58.20","Ready",""],["CLM-2704-0207","Chan Siew Lan","MediPanel TPA","44.00","Submitted",""],["CLM-2704-0185","Kumar a/l Rajan","Klang Valley Corporate Care","210.00","Paid","Paid 22 Apr"],["CLM-2704-0179","Priya a/p Raman","MediPanel TPA","61.50","Rejected","Exceeded annual limit"]];
+ const k={Ready:"info",Submitted:"sun",Paid:"ok",Rejected:"bad"};
+ return hd("Process 7.0 · Process Panel Claim","Panel & insurance claims","Claims are built from finalised panel invoices and checked before submission.",`<button class="btn">Export CSV</button><button class="btn pri" id="subClaims">Submit selected (${Object.values(S.claimsSel).filter(Boolean).length})</button>`)+
+ `<div class="grid g4">${[["Claimed this month","RM 48,210","1,036 claims",""],["Paid","RM 39,880","82.7%","up"],["Rejected","1.4%","was 6.8% on paper","up"],["Avg. days to payment","19","was 47 days","up"]].map(s=>`<div class="card stat"><span class="k">${s[0]}</span><span class="v" style="font-size:22px">${s[1]}</span><span class="d ${s[3]}">${s[2]}</span></div>`).join("")}</div>
+ <div class="card"><h2>Claims <small>${BR[S.branch]}</small></h2><div class="tw"><table><tr><th></th><th>Claim no.</th><th>Patient</th><th>Panel</th><th class="num">Amount (RM)</th><th>Status</th><th>Note</th></tr>
+ ${C.map(c=>`<tr><td>${c[4]==="Ready"?`<input type="checkbox" data-cl="${c[0]}" ${S.claimsSel[c[0]]?"checked":""} aria-label="Select ${c[0]}">`:""}</td><td class="mono">${c[0]}</td><td>${c[1]}</td><td>${c[2]}</td><td class="num mono">${c[3]}</td><td>${pill(c[4],k[c[4]])}</td><td class="note">${c[5]}${c[4]==="Rejected"?` <button class="btn sm">Fix</button>`:""}</td></tr>`).join("")}</table></div></div>`}
+
+/* ---------- REPORTS ---------- */
+function vReports(){const R={PJ1:[118400,96],PJ2:[84200,88],SA1:[97600,91],SA2:[61900,94],SJ1:[102300,90]};const max=130000;
+ return hd("Process 8.0 · Generate Management Report","Network performance · April 2027","Consolidated automatically from all five branches. No spreadsheets.",`<label class="chip">Period <select><option>April 2027</option><option>March 2027</option><option>Q1 2027</option></select></label><button class="btn pri">Export PDF</button>`)+
+ `<div class="grid g4">${[["Revenue (MTD)","RM 464,400","+11.2% vs Mar","up"],["Patient visits","12,384","avg 495 / day (2026: 450)","up"],["Avg. waiting time","15 min","target ≤ 20 min","up"],["Claims rejected","1.4%","target ≤ 2%","up"]].map(s=>`<div class="card stat"><span class="k">${s[0]}</span><span class="v">${s[1]}</span><span class="d ${s[3]}">${s[2]}</span></div>`).join("")}</div>
+ <div class="grid g2"><div class="card"><h2>Revenue by branch <small>RM, April MTD</small></h2><div class="bars">${Object.entries(R).map(([b,v])=>`<div class="b"><span>${BR[b]}</span><div class="track"><div class="fill" style="width:${v[0]/max*100}%"></div></div><span class="num mono">${v[0].toLocaleString()}</span></div>`).join("")}</div></div>
+ <div class="card"><h2>Claims paid within 30 days <small>% by branch</small></h2><div class="bars">${Object.entries(R).map(([b,v])=>`<div class="b"><span>${BR[b]}</span><div class="track"><div class="fill alt" style="width:${v[1]}%"></div></div><span class="num mono">${v[1]}%</span></div>`).join("")}</div></div></div>
+ <div class="card"><h2>Monthly summary report <small>Summary report · generated 26 Apr 2027 10:12</small></h2><div class="paper"><div class="ph2"><div><div class="ttl">Sunrise Family Clinics · Branch Summary</div><div class="note">Period: 1–25 April 2027 · All branches</div></div><div class="note" style="text-align:right">Prepared for: Dr. Mei Ling Chong, Dr. Hafiz Rahman<br>Page 1 of 1</div></div>
+ <div class="tw"><table><tr><th>Branch</th><th class="num">Visits</th><th class="num">Revenue (RM)</th><th class="num">Panel share</th><th class="num">Claims rejected</th><th class="num">Avg wait</th><th class="num">Stock-outs</th></tr>
+ ${[["PJ SS2 (HQ)",3120,"118,400","34%","1.1%","13 min",1],["PJ Damansara Utama",2240,"84,200","29%","1.9%","17 min",0],["Shah Alam Sek. 7",2610,"97,600","38%","1.2%","16 min",2],["Shah Alam Setia Alam",1680,"61,900","25%","0.9%","12 min",0],["Subang Jaya SS15",2734,"102,300","31%","1.6%","15 min",1]].map(r=>`<tr>${r.map((c,i)=>`<td class="${i?"num mono":""}">${c}</td>`).join("")}</tr>`).join("")}
+ <tr><td><b>Total / average</b></td><td class="num mono"><b>12,384</b></td><td class="num mono"><b>464,400</b></td><td class="num mono"><b>32%</b></td><td class="num mono"><b>1.4%</b></td><td class="num mono"><b>15 min</b></td><td class="num mono"><b>4</b></td></tr></table></div>
+ <div class="foot"><span>SunriseCare CMS · Confidential: management use only</span><span>Generated automatically</span></div></div></div>`}
+
+/* ---------- PATIENT PORTAL (mobile) ---------- */
+function qr(){let s='';const n=21;let seed=11;const fp=(x,y,ox,oy)=>{const dx=x-ox,dy=y-oy;if(dx<0||dy<0||dx>6||dy>6)return null;return (dx===0||dy===0||dx===6||dy===6)||(dx>=2&&dx<=4&&dy>=2&&dy<=4)};
+ for(let y=0;y<n;y++)for(let x=0;x<n;x++){let v=fp(x,y,0,0);if(v===null)v=fp(x,y,14,0);if(v===null)v=fp(x,y,0,14);if(v===null){if((x<8&&y<8)||(x>12&&y<8)||(x<8&&y>12))v=false;else{seed=(seed*9301+49297)%233280;v=seed/233280>.5}}if(v)s+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}
+ return `<svg class="qr" viewBox="-1 -1 23 23" aria-label="Check-in QR code"><rect x="-1" y="-1" width="23" height="23" fill="#fff"/><g fill="#24504b">${s}</g></svg>`}
+function vPortal(){const st=S.pstep;let body="";
+ if(st===1) body=`<div class="crumb">Step 1 of 3</div><b style="font:800 20px var(--display)">Choose a clinic and service</b>${Object.entries(BR).filter(([k])=>k!=="ALL").map(([k,v],i)=>`<div class="opt ${i===0?"on":""}"><div><b>${v}</b><div class="note">${["Next slot 10:30 today","Next slot 11:15 today","Next slot 14:00 today","Next slot 10:45 today","Next slot 12:00 today"][i]}</div></div></div>`).join("")}<button class="btn pri" data-ps="2">Continue</button>`;
+ else if(st===2) body=`<div class="crumb">Step 2 of 3 · PJ SS2 (HQ)</div><b style="font:800 20px var(--display)">Pick a time</b><div class="row">${["Mon 26","Tue 27","Wed 28"].map((d,i)=>`<span class="chip" style="${i===0?"background:var(--ink);color:#fff;border-color:var(--ink)":""}">${d}</span>`).join("")}</div>
+ <div class="f"><label for="pd">Doctor</label><select id="pd"><option>Any GP (shortest wait)</option><option>Dr. Mei Ling Chong</option></select></div>
+ <div class="slots">${["10:30","10:45","11:00","11:15","11:30","14:00"].map((t,i)=>`<button type="button" class="slot ${i===2||i===4?"full":""} ${S.slot===t?"sel":""}" data-slot="${t}" ${i===2||i===4?"disabled":""}>${t}</button>`).join("")}</div>
+ <div class="f"><label for="pr">Reason for visit</label><input id="pr" value="Follow-up for blood pressure"></div><button class="btn pri" data-ps="3">Book ${S.slot}</button><button class="btn" data-ps="1">Back</button>`;
+ else body=`<div class="alert a-ok"><div><b>Booking confirmed</b><span>Appointment A016 · Mon 26 Apr, ${S.slot} · PJ SS2 (HQ)</span></div></div>${qr()}<p class="note" style="text-align:center;margin:0">Show this code at the counter or kiosk to check in.</p><dl class="kv"><dt>Doctor</dt><dd>Any GP</dd><dt>Reminders</dt><dd>WhatsApp 24 h and 2 h before</dd><dt>Payer</dt><dd>MediPanel TPA</dd></dl><button class="btn">Add to calendar</button><button class="btn" data-ps="2">Reschedule</button>`;
+ return hd("Process 2.0 · Patient self-service","Patient portal","Mobile view used by patients to book, check in and download receipts and MCs.",`<button class="btn" data-ps="1">Restart demo</button>`)+
+ `<div class="grid g2"><div class="phone"><div class="scr"><div class="ph"><span>9:41</span><span>SunriseCare</span><span>●●●</span></div><div class="steps">${[1,2,3].map(i=>`<i class="${i<=st?"on":""}"></i>`).join("")}</div>${body}</div></div>
+ <div class="phone"><div class="scr"><div class="ph"><span>9:41</span><span>My health</span><span>●●●</span></div><b style="font:800 20px var(--display)">Hi, Wei Ming</b>
+ <div class="card"><h2 style="margin-bottom:6px">Upcoming</h2><div class="note" style="color:var(--fg)">Mon 26 Apr · 10:30 · PJ SS2</div></div>
+ <div class="card"><h2 style="margin-bottom:6px">Documents</h2><table><tr><td>MC · 14 Apr 2027</td><td class="num"><button class="btn sm">View</button></td></tr><tr><td>e-Invoice INV-SJ1-2704-0117</td><td class="num"><button class="btn sm">View</button></td></tr><tr><td>Receipt · 02 Mar 2027</td><td class="num"><button class="btn sm">View</button></td></tr></table></div>
+ <div class="card"><h2 style="margin-bottom:6px">Allergies on file</h2>${pill("Penicillin","bad")}</div></div></div></div>`}
+
+const VIEWS={login:vLogin,today:vToday,register:vRegister,patient:vPatient,appointments:vAppointments,consult:vConsult,pharmacy:vPharmacy,inventory:vInventory,billing:vBilling,claims:vClaims,reports:vReports,portal:vPortal};
+function render(){const v=VIEWS[S.view]||vToday;$("#root").innerHTML=S.view==="login"?v():shell(v());document.title="SunriseCare CMS";}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-go],[data-lr],[data-slot],[data-ps],[data-rm],[data-disp],#addRx,#payBtn,#xferBtn,#subClaims,#logout,#saveReg,#checkin,#callNext,#finishC,#poBtn,.opt");if(!t)return;
+ if(t.dataset.go){e.preventDefault();go(t.dataset.go)}
+ else if(t.dataset.lr){S.loginRole=t.dataset.lr;render()}
+ else if(t.dataset.slot){S.slot=t.dataset.slot;render()}
+ else if(t.dataset.ps){S.pstep=+t.dataset.ps;render();if(S.pstep===3)toast("Booked. Confirmation sent by WhatsApp.")}
+ else if(t.dataset.rm){S.rx.splice(+t.dataset.rm,1);render()}
+ else if(t.dataset.disp){S.dispensed[t.dataset.disp]=1;render();toast("Dispensed. Stock updated and label printed.")}
+ else if(t.id==="addRx"){const m=$("#addMed").value;if(/Amoxicillin/.test(m)){$("#rxMsg").innerHTML=`<div class="alert a-bad" style="margin-top:10px"><div><b>Blocked: Amoxicillin is a penicillin</b><span>Patient has a recorded penicillin allergy. Choose an alternative such as Azithromycin.</span></div></div>`;return}S.rx.push([m,"1 tab","OD",5,5]);render()}
+ else if(t.id==="payBtn"){S.paid=true;render();toast("Bill finalised. e-Invoice validated by MyInvois.")}
+ else if(t.id==="xferBtn"){S.xfer=true;render();toast("Transfer request sent to SJ1 and head office.")}
+ else if(t.id==="subClaims"){const n=Object.values(S.claimsSel).filter(Boolean).length;toast(n?n+" claim(s) submitted to panel portals.":"Select at least one claim marked Ready.")}
+ else if(t.id==="logout"){go("login")}
+ else if(t.id==="saveReg"){const ic=$("#ic").value.trim();const f=$("#f-ic");f.classList.remove("err");f.querySelector(".emsg")?.remove();if(!/^\d{6}-\d{2}-\d{4}$/.test(ic)&&!/^[A-Z]\d{7,8}$/.test(ic)){f.classList.add("err");f.insertAdjacentHTML("beforeend",`<span class="emsg">Enter a MyKad number as YYMMDD-PB-#### or a passport number such as A12345678.</span>`);return}toast("Saved. Patient ID SFC-018403 created; portal login sent by SMS.")}
+ else if(t.id==="checkin"){toast("Queue number W023 issued. Estimated wait 22 min.")}
+ else if(t.id==="callNext"){toast("Calling A014 Tan Wei Ming to Room 1.")}
+ else if(t.id==="finishC"){toast("Consultation saved. Prescription sent to pharmacy; MC sent to patient portal.")}
+ else if(t.id==="poBtn"){toast("Draft PO created for 4 items below reorder level.")}
+ else if(t.classList.contains("opt")){t.parentElement.querySelectorAll(".opt").forEach(o=>o.classList.remove("on"));t.classList.add("on")}});
+document.addEventListener("change",e=>{if(e.target.id==="role"){S.role=e.target.value;const v=ROLES[S.role].views;if(S.view!=="portal"&&!v.includes(S.view))S.view=v[0];if(S.role==="mgt")S.branch="ALL";else if(S.branch==="ALL")S.branch="PJ1";render()}
+ if(e.target.id==="branch"){S.branch=e.target.value;render()}
+ if(e.target.dataset.cl){S.claimsSel[e.target.dataset.cl]=e.target.checked;render()}});
+document.addEventListener("input",e=>{if(e.target.id==="ic"){const v=e.target.value.trim();const box=$("#dupBox");if(!box)return;if(v.startsWith("880412-14-5523")){box.className="alert a-warn";box.innerHTML=`<div><b>Possible duplicate: Tan Wei Ming (SFC-004217)</b><span>Registered at PJ SS2 in 2021, last visit Subang Jaya on 14 Apr 2027. Open the existing record instead of creating a new one.</span></div>`}else{box.className="alert a-ok";box.innerHTML=`<div><b>No existing record found</b><span>Searched 18,402 patients in all 5 branches by IC number and name.</span></div>`}
+ const m=v.match(/^(\d{2})(\d{2})(\d{2})-\d{2}-\d{3}(\d)$/);if(m){const yy=+m[1];$("#dob").value=`${m[3]}/${m[2]}/${yy>30?19:20}${m[1]}`;$("#gd").value=(+m[4])%2?"Male":"Female"}}});
+document.addEventListener("submit",e=>{e.preventDefault();if(e.target.id==="loginF"){S.view=S.loginRole==="Patient"?"portal":S.loginRole==="Head office"?"reports":"today";if(S.loginRole==="Head office"){S.role="mgt";S.branch="ALL"}render()}if(e.target.id==="bookF")toast("Booked "+S.slot+". WhatsApp confirmation sent.")});
+(function(){const h=(location.hash||"").slice(1);if(VIEWS[h])S.view=h;if(h==="reports"||h==="inventory"){S.role="mgt";S.branch="ALL"}if(h==="pharmacy")S.role="pha";if(h==="consult"||h==="patient")S.role="doc";render()})();
+</script>
+
+</body>
+</html>
